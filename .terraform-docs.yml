@@ -1,0 +1,16 @@
+formatter: markdown table
+
+sections:
+  show:
+    - inputs
+    - outputs
+
+sort:
+  enabled: true
+  by: required
+
+settings:
+  indent: 2
+  anchor: false
+  escape: true
+  hide-empty: true

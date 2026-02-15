@@ -1,0 +1,39 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+tfplan
+
+# Sensitive files
+*.pem
+*.key
+.env
+
+# Kubeconfig and Talosconfig
+kubeconfig
+talosconfig
+*.kubeconfig
+*.talosconfig
+.kubeconfig
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Blog post (published externally)
+docs/blog-post.md

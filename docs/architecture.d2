@@ -1,0 +1,136 @@
+direction: down
+
+title: {
+  label: Talos Kubernetes on Hetzner Cloud
+  near: top-center
+  shape: text
+  style.font-size: 28
+  style.bold: true
+}
+
+# --- External ---
+
+operator: Operator {
+  shape: person
+}
+
+internet: Internet {
+  shape: cloud
+  style.fill: "#e3f2fd"
+  style.stroke: "#1565c0"
+}
+
+# --- Hetzner Cloud ---
+
+hetzner: Hetzner Cloud {
+  style.fill: "#fafafa"
+  style.stroke: "#d32f2f"
+  style.stroke-width: 2
+  style.border-radius: 12
+
+  fw: Firewalls {
+    style.fill: "#fff8e1"
+    style.stroke: "#ef6c00"
+    style.border-radius: 8
+
+    cluster: "Cluster FW\ndeployer IP + CIDRs" {
+      shape: hexagon
+      style.fill: "#ffe0b2"
+      style.stroke: "#e65100"
+    }
+    workers: "Workers FW\nHTTP/S open" {
+      shape: hexagon
+      style.fill: "#ffe0b2"
+      style.stroke: "#e65100"
+    }
+  }
+
+  network: "Private Network (10.0.0.0/8)" {
+    style.fill: "#e8f5e9"
+    style.stroke: "#2e7d32"
+    style.border-radius: 8
+
+    lb: "K8s API Load Balancer\n10.0.1.254:6443 (private)" {
+      style.fill: "#fff9c4"
+      style.stroke: "#f57f17"
+      style.border-radius: 6
+    }
+
+    cp: "Control Plane (spread placement)" {
+      style.fill: "#e3f2fd"
+      style.stroke: "#1565c0"
+      style.border-radius: 8
+
+      cp1: "cp-1 (fsn1)\n10.0.1.10" {
+        style.fill: "#bbdefb"
+        style.stroke: "#0d47a1"
+        style.border-radius: 6
+      }
+      cp2: "cp-2 (nbg1)\n10.0.1.11" {
+        style.fill: "#bbdefb"
+        style.stroke: "#0d47a1"
+        style.border-radius: 6
+      }
+      cp3: "cp-3 (hel1)\n10.0.1.12" {
+        style.fill: "#bbdefb"
+        style.stroke: "#0d47a1"
+        style.border-radius: 6
+      }
+    }
+
+    workers: "Workers (spread placement)" {
+      style.fill: "#f3e5f5"
+      style.stroke: "#6a1b9a"
+      style.border-radius: 8
+
+      w1: "worker-1 (fsn1)\n10.0.2.10" {
+        style.fill: "#e1bee7"
+        style.stroke: "#4a148c"
+        style.border-radius: 6
+      }
+      w2: "worker-2 (nbg1)\n10.0.2.11" {
+        style.fill: "#e1bee7"
+        style.stroke: "#4a148c"
+        style.border-radius: 6
+      }
+      w3: "worker-3 (hel1)\n10.0.2.12" {
+        style.fill: "#e1bee7"
+        style.stroke: "#4a148c"
+        style.border-radius: 6
+      }
+    }
+
+    stack: "Cilium CNI / Hetzner CCM / Hetzner CSI / Metrics Server" {
+      shape: text
+      style.font-size: 14
+      style.font-color: "#888"
+    }
+  }
+}
+
+# --- Connections ---
+
+operator -> internet: {
+  style.stroke: "#999"
+}
+
+internet -> hetzner.fw: {
+  style.stroke: "#999"
+}
+
+hetzner.fw.cluster -> hetzner.network.cp: "Talos + K8s API\n(deployer IP)" {
+  style.stroke: "#ff9800"
+}
+
+hetzner.fw.workers -> hetzner.network.workers: "HTTP/S :80/:443" {
+  style.stroke: "#9c27b0"
+}
+
+hetzner.network.lb -> hetzner.network.cp.cp1: {style.stroke: "#f57f17"}
+hetzner.network.lb -> hetzner.network.cp.cp2: {style.stroke: "#f57f17"}
+hetzner.network.lb -> hetzner.network.cp.cp3: {style.stroke: "#f57f17"}
+
+hetzner.network.cp -> hetzner.network.workers: "VXLAN overlay (Cilium)" {
+  style.stroke: "#b71c1c"
+  style.stroke-dash: 3
+}

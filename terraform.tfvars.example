@@ -1,0 +1,85 @@
+# Copy to terraform.tfvars and edit.
+# Set your token: export TF_VAR_hcloud_token="..." (or create .env)
+
+cluster_name       = "talos-k8s"
+talos_version      = "v1.12.4"
+kubernetes_version = "1.35.0"
+
+# Talos extensions (generates schematic ID via Image Factory)
+talos_extensions = ["siderolabs/qemu-guest-agent", "siderolabs/iscsi-tools", "siderolabs/util-linux-tools"]
+
+# Control plane
+control_plane_count       = 3
+control_plane_server_type = "cx33"  # 4 vCPU, 8GB RAM
+control_plane_locations   = ["fsn1", "nbg1", "hel1"] # This can lead to problems (etcd Raft), you maybe should rely on only German DCs
+
+# Worker node pools
+worker_nodepools = [
+  {
+    name        = "general"
+    count       = 3
+    server_type = "cx33"  # 4 vCPU, 8GB RAM
+    locations   = ["fsn1", "nbg1", "hel1"]
+  },
+  # Example: second pool in a single location
+  # {
+  #   name        = "general"
+  #   count       = 3
+  #   server_type = "cx33"
+  #   locations   = ["nbg1"]
+  #   labels      = { "workload" = "general" }
+  # },
+  # Example: dedicated pool for databases
+  # {
+  #   name        = "db"
+  #   count       = 2
+  #   server_type = "cx43"  # 8 vCPU, 16GB RAM
+  #   locations   = ["fsn1"]
+  #   labels      = { "workload" = "database" }
+  #   taints      = ["dedicated=database:NoSchedule"]
+  # },
+]
+
+# Locations & network
+location     = "fsn1"
+network_zone = "eu-central"
+
+# Existing network (leave commented to auto-create)
+# hcloud_network_id = 12345
+
+network_cidr              = "10.0.0.0/8"
+control_plane_subnet_cidr = "10.0.1.0/24"
+worker_subnet_cidr        = "10.0.2.0/24"
+pod_cidr                  = "10.244.0.0/16"
+service_cidr              = "10.96.0.0/12"
+
+# Extra CIDRs allowed to access K8s/Talos APIs (deployer IP is auto-detected)
+# firewall_allow_cidrs = ["10.100.0.0/24"]
+
+# Component toggles (set to false to manage externally)
+enable_csi = true
+
+# Component versions
+cilium_version         = "1.19.0"
+hcloud_ccm_version     = "1.30.0"
+hcloud_csi_version     = "2.19.0"
+metrics_server_version = "3.13.0"
+
+# Protection (enable for non-ephemeral clusters)
+delete_protection = false
+
+# Extra Talos machine config patches (optional)
+# control_plane_extra_patches = [
+#   yamlencode({
+#     machine = {
+#       sysctls = { "vm.max_map_count" = "262144" }
+#     }
+#   }),
+# ]
+# worker_extra_patches = [
+#   yamlencode({
+#     machine = {
+#       sysctls = { "net.core.somaxconn" = "65535" }
+#     }
+#   }),
+# ]
