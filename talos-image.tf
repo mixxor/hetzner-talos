@@ -36,5 +36,5 @@ data "hcloud_images" "talos" {
 }
 
 locals {
-  talos_snapshot_id = data.hcloud_images.talos.images[0].id
+  talos_snapshot_id = try(data.hcloud_images.talos.images[0].id, null)
 }
